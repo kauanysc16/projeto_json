@@ -1,145 +1,195 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:projeto_json/Controller/livros_controller.dart';
+
+import '../Model/Livro.dart';
 
 class CadastrarLivroScreen extends StatefulWidget {
-  const CadastrarLivroScreen({Key? key}) : super(key: key);
+  const CadastrarLivroScreen({super.key});
 
   @override
   State<CadastrarLivroScreen> createState() => _CadastrarLivroScreenState();
 }
 
 class _CadastrarLivroScreenState extends State<CadastrarLivroScreen> {
-  final TextEditingController _tituloController = TextEditingController();
-  final TextEditingController _autorController = TextEditingController();
-  final TextEditingController _editoraController = TextEditingController();
-  final TextEditingController _sinopseController = TextEditingController();
-  final TextEditingController _categoriaController = TextEditingController();
-  final TextEditingController _isbnController = TextEditingController();
-  final TextEditingController _precoController = TextEditingController();
+  //Criar os Controllers Texto // Validações
+  final _formkey = GlobalKey<FormState>();
+  TextEditingController _tituloController = TextEditingController();
+  TextEditingController _autorController = TextEditingController();
+  TextEditingController _editoraController = TextEditingController();
+  TextEditingController _sinopseController = TextEditingController();
+  TextEditingController _precoController = TextEditingController();
+  TextEditingController _isbnController = TextEditingController();
+  TextEditingController _categoriaController = TextEditingController();
 
-  // Adicionando validadores básicos
-  final _formKey = GlobalKey<FormState>();
+  File? _imagemSelecionada;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Cadastrar Livro'),
-      ),
-      body: Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _tituloController,
-                decoration: InputDecoration(
-                  labelText: 'Título do Livro',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o título do livro';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _autorController,
-                decoration: InputDecoration(
-                  labelText: 'Autor',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o nome do autor';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _editoraController,
-                decoration: InputDecoration(
-                  labelText: 'Editora',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o nome da editora';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _sinopseController,
-                decoration: InputDecoration(
-                  labelText: 'Sinopse',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira uma sinopse';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _categoriaController,
-                decoration: InputDecoration(
-                  labelText: 'Categoria',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira a categoria do livro';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _isbnController,
-                decoration: InputDecoration(
-                  labelText: 'ISBN',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o ISBN do livro';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _precoController,
-                decoration: InputDecoration(
-                  labelText: 'Preço',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira o preço do livro';
-                  }
-                  // Verifica se o valor inserido pode ser convertido para um número
-                  if (double.tryParse(value) == null) {
-                    return 'Por favor, insira um preço válido';
-                  }
-                  return null;
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Se todas as validações passarem, você pode continuar com o processamento dos dados
-                    // Por exemplo, você pode enviar os dados para um banco de dados ou realizar outras operações
-                    // Aqui, apenas imprimir os valores dos controladores como exemplo
-                    print('Título: ${_tituloController.text}');
-                    print('Autor: ${_autorController.text}');
-                    print('Editora: ${_editoraController.text}');
-                    print('Sinopse: ${_sinopseController.text}');
-                    print('Categoria: ${_categoriaController.text}');
-                    print('ISBN: ${_isbnController.text}');
-                    print('Preço: ${_precoController.text}');
-                  }
-                },
-                child: Text('Cadastrar'),
-              ),
-            ],
-          ),
+        appBar: AppBar(
+          title: Text("Cadastrar Livro"),
         ),
-      ),
+        body: Padding(
+          padding: EdgeInsets.all(12),
+          child: Center(
+            child: Form(
+                key: _formkey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextFormField(
+                          controller: _tituloController,
+                          decoration: const InputDecoration(
+                            labelText: "Título do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Título não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _autorController,
+                          decoration: const InputDecoration(
+                            labelText: "Autor do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Autor não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _editoraController,
+                          decoration: const InputDecoration(
+                            labelText: "Editora do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Editora não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _sinopseController,
+                          decoration: const InputDecoration(
+                            labelText: "Sinopse do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Sinopse não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _categoriaController,
+                          decoration: const InputDecoration(
+                            labelText: "Categorias, separa por vírgula",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Categoria não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _isbnController,
+                          decoration: const InputDecoration(
+                            labelText: "isbn do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "isbn não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      TextFormField(
+                          controller: _precoController,
+                          decoration: const InputDecoration(
+                            labelText: "Preço do Livro",
+                          ),
+                          validator: (value) {
+                            if (value!.trim().isEmpty) {
+                              return "Preço não pode ser Vazio";
+                            } else {
+                              return null;
+                            }
+                          }),
+                      _imagemSelecionada != null
+                          ? Image.file(
+                              _imagemSelecionada!,
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.cover,
+                            )
+                          : const SizedBox.shrink(),
+                      ElevatedButton(
+                        onPressed: _tirarFoto,
+                        child: Text('Tirar Foto Capa Livro'),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton(
+                          child: const Text("Cadastrar"),
+                          onPressed: () {
+                            if (_formkey.currentState!.validate()) {
+                              _cadastrarLivro();
+                            }
+                          })
+                    ],
+                  ),
+                )),
+          ),
+        ));
+  }
+
+  Future<void> _tirarFoto() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _imagemSelecionada = File(pickedFile.path);
+      });
+    }
+  }
+
+  LivrosController _controller = new LivrosController();
+  _cadastrarLivro() {
+    final livro = Livro(
+      id:_controller.listLivros.length,
+      titulo: _tituloController.text,
+      autor: _autorController.text,
+      editora: _editoraController.text,
+      sinopse: _sinopseController.text,
+      preco: double.parse(_precoController.text),
+      capa: _imagemSelecionada!.path,
+      isbn: _isbnController.text,
+      categoria: _categoriaController.text.split(','),
     );
+    _controller.addLivro(livro);
+  }
+  void _cleanController() {
+    _tituloController.clear();
+    _autorController.clear();
+    _editoraController.clear();
+    _sinopseController.clear();
+    _precoController.clear();
+    _isbnController.clear();
+    _categoriaController.clear();
+    _imagemSelecionada = null;
+    setState(() {
+      
+    });
   }
 }

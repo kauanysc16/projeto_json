@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class Livro {
   final int id;
   final String titulo;
@@ -5,9 +7,9 @@ class Livro {
   final String sinopse;
   final List<String> categoria;
   final String capa;
-  final String editoria;
+  final String editora;
   final String isbn;
-  final String preco;
+  final double preco;
 
   Livro(
       {required this.id,
@@ -16,7 +18,7 @@ class Livro {
       required this.sinopse,
       required this.categoria,
       required this.capa,
-      required this.editoria,
+      required this.editora,
       required this.isbn,
       required this.preco});
 
@@ -28,7 +30,7 @@ class Livro {
       'sinopse': sinopse,
       'categoria': categoria,
       'capa': capa,
-      'editoria': editoria,
+      'editoria': editora,
       'isbn': isbn,
       'preco': preco,
     };
@@ -42,7 +44,7 @@ class Livro {
     sinopse: map['sinopse'],
     categoria: List<String>.from(map['categoria']),
     capa: map['capa'],
-    editoria: map['editoria'],
+    editora: map['editoria'],
     isbn: map['isbn'],
     preco: map['preco'],
     );
